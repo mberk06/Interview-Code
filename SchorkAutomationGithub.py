@@ -102,58 +102,7 @@ class scrape():
 
         #close the driver
         self.d.close()
-
-    """
-    #Purpose: scrape expiration date
-    #Parameters: commodity type
-    #Return: [future expiration, option expiration]
-    def getExpiration(self, com):
-        # flow control for commodities
-        if com == "NG":
-            urls = ["https://www.cmegroup.com/trading/energy/natural-gas/natural-gas_product_calendar_futures.html?optionProductId=191&optionExpiration=191-Q8",
-                    "https://www.cmegroup.com/trading/energy/natural-gas/natural-gas_product_calendar_options.html?optionProductId=191&optionExpiration=191-Q8"]
-            return(self.readExpirationTable(urls))
-        elif com == "RBOB":
-            urls = ["https://www.cmegroup.com/trading/energy/refined-products/rbob-gasoline_product_calendar_futures.html?optionProductId=195",
-                    "https://www.cmegroup.com/trading/energy/refined-products/rbob-gasoline_product_calendar_options.html?optionProductId=195"]
-            return(self.readExpirationTable(urls))
-        elif com == "WTI":
-            urls = ["https://www.cmegroup.com/trading/energy/crude-oil/light-sweet-crude_product_calendar_futures.html",
-                    "https://www.cmegroup.com/trading/energy/crude-oil/light-sweet-crude_product_calendar_options.html"]
-            return(self.readExpirationTable(urls))
-        elif com == "ULSD":
-            urls = ["https://www.cmegroup.com/trading/energy/refined-products/heating-oil_product_calendar_futures.html",
-                    "https://www.cmegroup.com/trading/energy/refined-products/heating-oil_product_calendar_options.html#optionProductId=194"]
-            return(self.readExpirationTable(urls))
-        elif com == "Brent":
-            urls = ["https://www.cmegroup.com/trading/energy/crude-oil/brent-ice-calendar-swap-futures_product_calendar_futures.html",
-                    "https://www.cmegroup.com/trading/energy/crude-oil/brent-ice-calendar-swap-futures_product_calendar_options.html"]
-            return(self.readExpirationTable(urls))
-        elif com == "Gasoil":
-            urls = ["https://www.cmegroup.com/trading/energy/refined-products/european-gasoil-ice-futures_product_calendar_futures.html",
-                    "https://www.cmegroup.com/trading/energy/refined-products/european-gasoil-ice-futures_product_calendar_options.html#optionProductId=5790"]
-            return(self.readExpirationTable(urls))
-        else:
-            print("Incorrect com specified")
-            return None
-
-    #Purpose: read table
-    #Parameters: url array
-    #Return: [future expiration, option expiration]
-    def readExpirationTable(self, urls):
-        #read future and option
-        self.d.get(urls[0])
-        time.sleep(2)
-        future = self.d.find_element_by_xpath("/html[1]/body[1]/div[2]/div[2]/div[3]/div[1]/div[1]/div[2]/div[2]/div[3]/div[4]/table[1]/tbody[1]/tr[1]/td[2]").text.split()
-        dateF = future[3]+" "+future[4]+" "+future[5]
-        self.d.get(urls[1])
-        time.sleep(2)
-        option = self.d.find_element_by_xpath("/html[1]/body[1]/div[2]/div[2]/div[3]/div[1]/div[1]/div[2]/div[2]/div[3]/div[4]/table[1]/tbody[1]/tr[1]/td[2]").text.split()
-        dateO = option[3]+" "+option[4]+" "+option[5]
-
-        return [dateF, dateO]
-    """
-
+        
 #############################
 #Read
 #############################
