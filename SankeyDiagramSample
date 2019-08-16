@@ -1,0 +1,148 @@
+import pandas as pd 
+import numpy as np
+import plotly as py
+from collections import OrderedDict as od
+import plotly.graph_objects as go
+
+#create dummy data
+df = pd.DataFrame({'A':[1,2,3,1,2,3],'B':[4,4,4,5,5,5],'C':[2,3,6,1,2,1]})
+
+#SQL output
+"""
+	Input format from SQL:	
+    Col 0: grouping of entities (app, entry point, etc.)
+    Col 1: binary outcome (converted, retained, etc.)
+    Col 2: individual entity count (device, user, etc.)
+    NOTE: ORDER BY Col 0
+"""
+
+######################### USER PARAMETERS #######################
+
+cat_type = 'specific' #all/top_in/bottom_in/top_ratio/bottom_ratio/specific (ratio = COUNT(1)/COUNT(0))
+n = 3 #number of figs to be show (cat_type cannot be 'all' or 'specific')
+include = [] #values to include (only works for cat_type = 'specific')
+exclude = [] #values to exclude (works for all cat_types)
+title = '' #title of graph
+
+####################### HELPERS #################################
+
+#Purose: convert the data based on user parameters
+#Params: type of category to display, source, target, value
+#Return: source, taget, value labels of cateogyr
+def formatData(c, source, target, value, binaryVal, include, exclude):
+  #turn into dict
+  d = {}
+  for i in range(len(target)):
+    #if key already in dict
+    if source[i] in d.keys():
+      d[source[i]]['target'].append(target[i])
+      d[source[i]]['value'].append(value[i])
+    #if key neds to be added to dict
+    else:
+      d[source[i]] = {'target':[target[i]], 'value':[value[i]]}
+  
+  #create sumDict and ratioDict
+  sumDict, ratioDict = {}, {}
+  for k in d.keys():
+    #calucalte sum
+    sumDict[k] = sum(d[k]['value'])
+    
+    #calculate ratio (1/0)
+    if len(d[k]['target']) > 1:
+      #maintain 1/0 vs. 0/1
+      if d[k]['target'][0] == 0:
+        ratioDict[k] = d[k]['value'][1]/d[k]['value'][0]
+      else: 
+        ratioDict[k] = d[k]['value'][1]/d[k]['value'][0]
+      
+  #remove exclude vals
+  for e in exclude:
+    if e in d.keys():
+      del d[e]
+      del sumDict[e]
+      del ratioDict[e]
+  
+  #get top/bottom 5 values
+  if c == 'all':
+  	rank = list(d.keys())
+  elif c == 'specific':
+    rank = include
+  elif c == 'top_in':
+  	rank = sorted(sumDict, key=sumDict.get, reverse=True)[:n]
+  elif c == 'bottom_in':
+  	rank = sorted(sumDict, key=sumDict.get, reverse=False)[:n]
+  elif c == 'top_ratio':
+  	rank = sorted(ratioDict, key=ratioDict.get, reverse=True)[:n]
+  elif c == 'bottom_ratio':
+  	rank = sorted(ratioDict, key=ratioDict.get, reverse=False)[:n]
+  else:
+	  print("Incorrect category")
+
+  #flatten indeces and limit to indeces
+  labels = [j for i in [[r]*2 for r in rank] for j in i]
+  source1 = [[i,i] for i in range(len(set(labels)))]
+  source1 = [j for i in source1 for j in i] #flatten
+  target1 = [j for i in  [d[r]['target'] for r in rank] for j in i]
+  value1 = [j for i in  [d[r]['value'] for r in rank] for j in i]
+
+  #create state labels  	
+  input_states = list(od.fromkeys(labels)) # get unqiue groupings
+  if target1[0] == 0:
+    final_states = ["Not " + df.columns.values[1], df.columns.values[1]]
+  else:
+    final_states = [df.columns.values[1], "Not " + df.columns.values[1]]
+    
+  #convert unqiue states to indecies
+  start_states = source1
+  end_states = [(x + max(start_states) + 1) for x in target1]
+  
+  #get path values
+  path_vals = [t/sum(value1)*100 for t in value1] #perecent
+  
+  #get labels
+  cat_labels = input_states + final_states
+  
+  #return values in the top/bottom
+  return [start_states, end_states, path_vals, cat_labels]
+
+######################### RUN ##################################
+#Convert data to correct format (created variables for readability)
+grouping = df.iloc[:,0].tolist() 
+outcome = df.iloc[:,1].tolist()
+transition_number = df.iloc[:,2].tolist()
+           
+s, t, v, cl = formatData(cat_type,grouping, outcome, transition_number, df.columns.values[1], include, exclude)
+
+#declare data dict
+data = dict(
+  source = s, # where entities start
+  target = t, # where the entities go
+  value = v, # size of path
+  color = 'rgba(39,38,46,.3)'
+)
+
+#create graph params dict 
+graph_info = dict(
+  pad = 15, # padding between paths in diagram
+  thickness = 20, # width of each state
+  line = None, # outline line for states
+  label = cl,
+  color = 'rgba(250,80,27,1)'
+)
+
+#create layout
+layout = dict(
+  title = title,
+  height = 500,
+  width = 700
+)
+
+#create figure
+fig = go.Figure(data=[go.Sankey(
+  node = graph_info,
+  link = data
+	)],
+  layout = layout
+)
+
+fig.show() 
