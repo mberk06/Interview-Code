@@ -1,5 +1,5 @@
-# Random-Code
-These are files developed in a professional setting. These files have been changed to protect IP. 
+# Interview-Code
+These are files developed in a professional setting. I have also developed a variety of SQL queries and SKlearn scripts that could not be committed due to IP.
 
 **SankeyDiagramSample**
 - Summer 2019
