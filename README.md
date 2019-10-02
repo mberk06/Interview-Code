@@ -1,6 +1,5 @@
 # Random-Code
-These are files that did not fit into the other repos.
-Note: these files may be out of date
+These are files developed in a professional setting. These files have been changed to protect IP. 
 
 **SankeyDiagramSample**
 - Summer 2019
